@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي الحرابي الذكية - معهد ساسيتال</title>
+    
+    <!-- Google Fonts for Cairo and Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS for Responsive Premium Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- React and Babel for clean state management and interactive transitions -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sasetalPurple: {
+                            DEFAULT: '#702D95',
+                            light: '#9C27B0',
+                            dark: '#4A148C',
+                            muted: '#f3e8ff'
+                        },
+                        sasetalGold: {
+                            DEFAULT: '#E9C441',
+                            light: '#FFD700',
+                            dark: '#B8860B',
+                            muted: '#fef3c7'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            background-color: #fcfaff;
+            background-image: radial-gradient(#e9d5ff 1px, transparent 1px), radial-gradient(#fef3c7 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+
+        /* Custom premium animations for game elements */
+        @keyframes pulse-gold {
+            0%, 100% { filter: drop-shadow(0 0 4px #FFD700); }
+            50% { filter: drop-shadow(0 0 16px #FFD700); }
+        }
+        @keyframes pulse-purple {
+            0%, 100% { filter: drop-shadow(0 0 4px #9C27B0); }
+            50% { filter: drop-shadow(0 0 16px #9C27B0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .pulse-gold-glow {
+            animation: pulse-gold 2s infinite;
+        }
+        .pulse-purple-glow {
+            animation: pulse-purple 2s infinite;
+        }
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        /* Smooth transitions for crawling chameleons */
+        .crawler-transition {
+            transition: all 900ms cubic-bezier(0.25, 1, 0.5, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800 selection:bg-sasetalPurple-light selection:text-white">
+
+    <div id="root" class="w-full flex-grow flex flex-col"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        /* Custom Synthesizer for Retro Game Sound Effects (No External Files Required!) */
+        const playSound = (type) => {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (type === 'click') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(500, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.08);
+                } else if (type === 'toggle') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, ctx.currentTime);
+                    osc.frequency.setValueAtTime(554.37, ctx.currentTime + 0.05);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                } else if (type === 'success') {
+                    const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 1046.50]; // C Major chord scale up
+                    notes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.1);
+                        gain.gain.setValueAtTime(0.12, ctx.currentTime + idx * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.1 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + idx * 0.1);
+                        osc.stop(ctx.currentTime + idx * 0.1 + 0.3);
+                    });
+                } else if (type === 'fail') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(110, ctx.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.4);
+                } else if (type === 'slide') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(150, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(350, ctx.currentTime + 0.6);
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.6);
+                }
+            } catch (e) {
+                console.warn("AudioContext init failed (User gesture might be required first)", e);
+            }
+        };
+
+        // Pure SVG Responsive Chameleon Component
+        const Chameleon = ({ color, sizeClass = "w-10 h-10", className = "", isFlipped = false }) => {
+            const fillHex = color === 'gold' ? '#E9C441' : (color === 'purple' ? '#702D95' : '#CBD5E1');
+            const strokeHex = color === 'gold' ? '#B8860B' : (color === 'purple' ? '#4A148C' : '#94A3B8');
+            const spineHex = color === 'gold' ? '#FFF59D' : (color === 'purple' ? '#E9D5FF' : '#E2E8F0');
+            const eyeColor = color === 'gold' ? '#702D95' : (color === 'purple' ? '#E9C441' : '#64748B');
+
+            return (
+                <div className={`${sizeClass} ${className} flex items-center justify-center select-none transition-all duration-300 transform ${isFlipped ? 'scale-x-[-1]' : ''}`}>
+                    <svg viewBox="0 0 100 100" className="w-full h-full filter drop-shadow-md">
+                        {/* Tail spiral */}
+                        <path 
+                            d="M 22 68 C 12 68 8 57 8 46 C 8 32 20 22 34 25 C 44 28 47 38 41 45 C 37 50 29 48 29 42 C 29 38 34 38 34 40" 
+                            fill="none" 
+                            stroke={fillHex} 
+                            strokeWidth="8" 
+                            strokeLinecap="round"
+                        />
+                        {/* Main body */}
+                        <path 
+                            d="M 30 46 C 30 28, 66 23, 76 44 C 81 51, 76 66, 60 66 C 45 66, 30 61, 30 46 Z" 
+                            fill={fillHex}
+                            stroke={strokeHex}
+                            strokeWidth="2"
+                        />
+                        {/* Back spines/ridges */}
+                        <path 
+                            d="M 38 32 Q 41 24 44 30 Q 47 23 50 29 Q 53 22 56 28 Q 59 21 62 27 Q 65 20 68 26 Q 71 19 74 25" 
+                            fill="none" 
+                            stroke={spineHex} 
+                            strokeWidth="4" 
+                            strokeLinecap="round"
+                        />
+                        {/* Head */}
+                        <path 
+                            d="M 69 41 C 74 30, 91 35, 93 49 C 94 56, 86 63, 76 59 Z" 
+                            fill={fillHex}
+                            stroke={strokeHex}
+                            strokeWidth="2"
+                        />
+                        {/* Cute Eye */}
+                        <circle cx="81" cy="43" r="8" fill="white" />
+                        <circle cx="82" cy="43" r="4" fill={eyeColor} />
+                        <circle cx="84" cy="41" r="1.5" fill="white" />
+                        {/* Smile */}
+                        <path d="M 86 52 Q 83 55 80 52" fill="none" stroke={strokeHex} strokeWidth="2.5" strokeLinecap="round" />
+                        {/* Back Leg */}
+                        <path 
+                            d="M 45 62 Q 41 78 36 77" 
+                            fill="none" 
+                            stroke={fillHex} 
+                            strokeWidth="7" 
+                            strokeLinecap="round"
+                        />
+                        {/* Front Leg */}
+                        <path 
+                            d="M 63 62 Q 68 78 73 77" 
+                            fill="none" 
+                            stroke={fillHex} 
+                            strokeWidth="7" 
+                            strokeLinecap="round"
+                        />
+                    </svg>
+                </div>
+            );
+        };
+
+        // Levels Data based on Bebras Chameleon challenge rules but branded for Sasetal
+        const LEVELS = [
+            {
+                id: 1,
+                name: "المستوى الأول - مسار التعلم الذكي",
+                stars: 1,
+                maxChanges: 2,
+                description: "هدفك هو الحصول على حرباء ذهبية اللون في الأسفل. اضغط على أوراق الشجر لتغيير ألوان الحرابي في الأعلى (مسموح بتغيير لون حرباءين بحد أقصى). ثم انقر على زر (تشغيل المحاكاة 🚀) لترى النتيجة!",
+                leaves: [
+                    { id: "L1", color: "purple", x: 22, y: 15 },
+                    { id: "L2", color: "purple", x: 42, y: 15 },
+                    { id: "L3", color: "purple", x: 58, y: 15 },
+                    { id: "L4", color: "gold", x: 78, y: 15 },
+                ],
+                nests: [
+                    { id: "N1", initialColor: "gold", currentColor: "gold", x: 32, y: 48, inputs: ["L1", "L2"] },
+                    { id: "N2", initialColor: "purple", currentColor: "purple", x: 68, y: 48, inputs: ["L3", "L4"] },
+                    { id: "N3", initialColor: "purple", currentColor: "purple", x: 50, y: 78, inputs: ["N1", "N2"] }
+                ],
+                target: { id: "Target", color: "gold", x: 50, y: 94, input: "N3" },
+                connections: [
+                    { from: "L1", to: "N1" },
+                    { from: "L2", to: "N1" },
+                    { from: "L3", to: "N2" },
+                    { from: "L4", to: "N2" },
+                    { from: "N1", to: "N3" },
+                    { from: "N2", to: "N3" },
+                    { from: "N3", to: "Target" }
+                ],
+                animationSteps: [
+                    // step 1: leaves crawl to upper nests
+                    [{ from: "L1", to: "N1" }, { from: "L2", to: "N1" }, { from: "L3", to: "N2" }, { from: "L4", to: "N2" }],
+                    // step 2: upper nests crawl to bottom nest
+                    [{ from: "N1", to: "N3" }, { from: "N2", to: "N3" }],
+                    // step 3: bottom nest crawls to target
+                    [{ from: "N3", to: "Target" }]
+                ]
+            },
+            {
+                id: 2,
+                name: "المستوى الثاني - تحدي بيبراس المطور",
+                stars: 3,
+                maxChanges: 4,
+                description: "الآن يزداد التحدي إثارة! شجرة أوسع بـ 8 أوراق و 7 أعشاش. قم بتغيير ألوان ما يصل إلى 4 حرابي على أوراق الشجر لجعل الحرباء النهائية ذهبية اللون.",
+                leaves: [
+                    { id: "L1", color: "purple", x: 10, y: 12 },
+                    { id: "L2", color: "purple", x: 22, y: 12 },
+                    { id: "L3", color: "purple", x: 34, y: 12 },
+                    { id: "L4", color: "purple", x: 46, y: 12 },
+                    { id: "L5", color: "purple", x: 54, y: 12 },
+                    { id: "L6", color: "purple", x: 66, y: 12 },
+                    { id: "L7", color: "gold",  x: 78, y: 12 },
+                    { id: "L8", color: "purple", x: 90, y: 12 },
+                ],
+                nests: [
+                    { id: "N1", initialColor: "purple", currentColor: "purple", x: 16, y: 34, inputs: ["L1", "L2"] },
+                    { id: "N2", initialColor: "gold", currentColor: "gold", x: 40, y: 34, inputs: ["L3", "L4"] },
+                    { id: "N3", initialColor: "purple", currentColor: "purple", x: 60, y: 34, inputs: ["L5", "L6"] },
+                    { id: "N4", initialColor: "purple", currentColor: "purple", x: 84, y: 34, inputs: ["L7", "L8"] },
+                    { id: "N5", initialColor: "purple", currentColor: "purple", x: 28, y: 60, inputs: ["N1", "N2"] },
+                    { id: "N6", initialColor: "gold", currentColor: "gold", x: 72, y: 60, inputs: ["N3", "N4"] },
+                    { id: "N7", initialColor: "purple", currentColor: "purple", x: 50, y: 80, inputs: ["N5", "N6"] }
+                ],
+                target: { id: "Target", color: "gold", x: 50, y: 94, input: "N7" },
+                connections: [
+                    { from: "L1", to: "N1" }, { from: "L2", to: "N1" },
+                    { from: "L3", to: "N2" }, { from: "L4", to: "N2" },
+                    { from: "L5", to: "N3" }, { from: "L6", to: "N3" },
+                    { from: "L7", to: "N4" }, { from: "L8", to: "N4" },
+                    { from: "N1", to: "N5" }, { from: "N2", to: "N5" },
+                    { from: "N3", to: "N6" }, { from: "N4", to: "N6" },
+                    { from: "N5", to: "N7" }, { from: "N6", to: "N7" },
+                    { from: "N7", to: "Target" }
+                ],
+                animationSteps: [
+                    [{ from: "L1", to: "N1" }, { from: "L2", to: "N1" }, { from: "L3", to: "N2" }, { from: "L4", to: "N2" }, { from: "L5", to: "N3" }, { from: "L6", to: "N3" }, { from: "L7", to: "N4" }, { from: "L8", to: "N4" }],
+                    [{ from: "N1", to: "N5" }, { from: "N2", to: "N5" }, { from: "N3", to: "N6" }, { from: "N4", to: "N6" }],
+                    [{ from: "N5", to: "N7" }, { from: "N6", to: "N7" }],
+                    [{ from: "N7", to: "Target" }]
+                ]
+            },
+            {
+                id: 3,
+                name: "المستوى الثالث - العباقرة والمتميزون",
+                stars: 5,
+                maxChanges: 3,
+                description: "المستوى الأخير للعباقرة! هل يمكنك التفكير بطريقة عكسية (Reverse Reasoning) وحل اللغز بـ 3 تغييرات فقط للحصول على الحرباء الذهبية؟",
+                leaves: [
+                    { id: "L1", color: "purple", x: 10, y: 12 },
+                    { id: "L2", color: "purple", x: 22, y: 12 },
+                    { id: "L3", color: "purple", x: 34, y: 12 },
+                    { id: "L4", color: "purple", x: 46, y: 12 },
+                    { id: "L5", color: "purple", x: 54, y: 12 },
+                    { id: "L6", color: "purple", x: 66, y: 12 },
+                    { id: "L7", color: "gold",  x: 82, y: 12 }, // Initially Gold leaf
+                    { id: "L8", color: "purple", x: 94, y: 12 },
+                ],
+                nests: [
+                    { id: "N1", initialColor: "purple", currentColor: "purple", x: 16, y: 34, inputs: ["L1", "L2"] },
+                    { id: "N2", initialColor: "purple", currentColor: "purple", x: 40, y: 34, inputs: ["L3", "L4"] },
+                    { id: "N3", initialColor: "gold", currentColor: "gold", x: 60, y: 34, inputs: ["L5", "L6"] },
+                    { id: "N4", initialColor: "gold", currentColor: "gold", x: 88, y: 34, inputs: ["L7", "L8"] },
+                    { id: "N5", initialColor: "gold", currentColor: "gold", x: 28, y: 60, inputs: ["N1", "N2"] },
+                    { id: "N6", initialColor: "purple", currentColor: "purple", x: 74, y: 60, inputs: ["N3", "N4"] },
+                    { id: "N7", initialColor: "purple", currentColor: "purple", x: 50, y: 80, inputs: ["N5", "N6"] }
+                ],
+                target: { id: "Target", color: "gold", x: 50, y: 94, input: "N7" },
+                connections: [
+                    { from: "L1", to: "N1" }, { from: "L2", to: "N1" },
+                    { from: "L3", to: "N2" }, { from: "L4", to: "N2" },
+                    { from: "L5", to: "N3" }, { from: "L6", to: "N3" },
+                    { from: "L7", to: "N4" }, { from: "L8", to: "N4" },
+                    { from: "N1", to: "N5" }, { from: "N2", to: "N5" },
+                    { from: "N3", to: "N6" }, { from: "N4", to: "N6" },
+                    { from: "N5", to: "N7" }, { from: "N6", to: "N7" },
+                    { from: "N7", to: "Target" }
+                ],
+                animationSteps: [
+                    [{ from: "L1", to: "N1" }, { from: "L2", to: "N1" }, { from: "L3", to: "N2" }, { from: "L4", to: "N2" }, { from: "L5", to: "N3" }, { from: "L6", to: "N3" }, { from: "L7", to: "N4" }, { from: "L8", to: "N4" }],
+                    [{ from: "N1", to: "N5" }, { from: "N2", to: "N5" }, { from: "N3", to: "N6" }, { from: "N4", to: "N6" }],
+                    [{ from: "N5", to: "N7" }, { from: "N6", to: "N7" }],
+                    [{ from: "N7", to: "Target" }]
+                ]
+            }
+        ];
+
+        const App = () => {
+            const [levelIdx, setLevelIdx] = useState(0);
+            const level = LEVELS[levelIdx];
+
+            // Game Interactive States
+            const [leaves, setLeaves] = useState(JSON.parse(JSON.stringify(level.leaves)));
+            const [nests, setNests] = useState(JSON.parse(JSON.stringify(level.nests)));
+            const [targetColor, setTargetColor] = useState('#CBD5E1'); // Empty grey initially
+            const [changesCount, setChangesCount] = useState(0);
+            
+            // Animation States
+            const [isAnimating, setIsAnimating] = useState(false);
+            const [activeStep, setActiveStep] = useState(-1);
+            const [crawlers, setCrawlers] = useState([]);
+            
+            // View Screens
+            const [showIntro, setShowIntro] = useState(true);
+            const [showSuccessModal, setShowSuccessModal] = useState(false);
+            const [showFailureModal, setShowFailureModal] = useState(false);
+            const [showHelpModal, setShowHelpModal] = useState(false);
+
+            // Synchronize with Level Changes
+            useEffect(() => {
+                resetLevel();
+            }, [levelIdx]);
+
+            const resetLevel = () => {
+                setLeaves(JSON.parse(JSON.stringify(level.leaves)));
+                setNests(JSON.parse(JSON.stringify(level.nests)));
+                setTargetColor('#CBD5E1');
+                setChangesCount(0);
+                setIsAnimating(false);
+                setActiveStep(-1);
+                setCrawlers([]);
+                setShowSuccessModal(false);
+                setShowFailureModal(false);
+            };
+
+            // Toggle Leaf Color with limit checking
+            const handleLeafClick = (leafId) => {
+                if (isAnimating) return;
+                playSound('toggle');
+
+                const updatedLeaves = leaves.map(leaf => {
+                    if (leaf.id === leafId) {
+                        const originalLeaf = level.leaves.find(l => l.id === leafId);
+                        const isOriginallySame = leaf.color === originalLeaf.color;
+                        
+                        // Check if we are toggle-reversing back to original or making a new change
+                        let newColor = leaf.color === 'purple' ? 'gold' : 'purple';
+                        
+                        // Recalculate total changes count
+                        const potentialChanges = leaves.reduce((acc, curr) => {
+                            if (curr.id === leafId) {
+                                return acc + (newColor !== originalLeaf.color ? 1 : 0);
+                            }
+                            return acc + (curr.color !== level.leaves.find(l => l.id === curr.id).color ? 1 : 0);
+                        }, 0);
+
+                        if (potentialChanges > level.maxChanges) {
+                            // Shake feedback or warning
+                            return leaf;
+                        }
+
+                        setChangesCount(potentialChanges);
+                        return { ...leaf, color: newColor };
+                    }
+                    return leaf;
+                });
+
+                setLeaves(updatedLeaves);
+            };
+
+            // Calculate evaluated colors level-by-level
+            const evaluateLogic = () => {
+                let currentStates = {
+                    ...leaves.reduce((acc, curr) => ({ ...acc, [curr.id]: curr.color }), {}),
+                    ...nests.reduce((acc, curr) => ({ ...acc, [curr.id]: curr.currentColor }), {})
+                };
+
+                const stepsResults = [];
+
+                // For each step in the animation sequence, compute the results
+                level.animationSteps.forEach((stepTransitions, stepIdx) => {
+                    const stepEvaluations = {};
+                    
+                    // Group by target nest to process inputs
+                    const nestInputs = {};
+                    stepTransitions.forEach(t => {
+                        if (!nestInputs[t.to]) nestInputs[t.to] = [];
+                        nestInputs[t.to].push(currentStates[t.from]);
+                    });
+
+                    // For each target nest, evaluate rule
+                    Object.keys(nestInputs).forEach(nestId => {
+                        if (nestId === "Target") {
+                            stepEvaluations[nestId] = nestInputs[nestId][0]; // Propagates directly
+                        } else {
+                            const nestObj = level.nests.find(n => n.id === nestId);
+                            const inputs = nestInputs[nestId];
+                            
+                            // Rule: If two inputs are of the SAME color, the 3rd (output) becomes that color.
+                            // Otherwise, it retains its initial/original color.
+                            if (inputs.length === 2 && inputs[0] === inputs[1]) {
+                                stepEvaluations[nestId] = inputs[0];
+                            } else {
+                                stepEvaluations[nestId] = nestObj.initialColor;
+                            }
+                        }
+                    });
+
+                    // Update currentStates for next step evaluation
+                    currentStates = { ...currentStates, ...stepEvaluations };
+                    stepsResults.push(stepEvaluations);
+                });
+
+                return stepsResults;
+            };
+
+            const runSimulation = () => {
+                if (isAnimating) return;
+                setIsAnimating(true);
+                playSound('slide');
+
+                // Pre-evaluate entire logic flow
+                const stepsResults = evaluateLogic();
+                
+                let currentStep = 0;
+                setActiveStep(0);
+
+                const executeStep = () => {
+                    if (currentStep >= level.animationSteps.length) {
+                        // Animation finished, evaluate win/loss
+                        const finalColor = stepsResults[stepsResults.length - 1]["Target"];
+                        setTargetColor(finalColor);
+                        setIsAnimating(false);
+                        
+                        setTimeout(() => {
+                            if (finalColor === level.target.color) {
+                                playSound('success');
+                                setShowSuccessModal(true);
+                            } else {
+                                playSound('fail');
+                                setShowFailureModal(true);
+                            }
+                        }, 500);
+                        return;
+                    }
+
+                    // Spawn Crawling Chameleons
+                    const transitionsToAnimate = level.animationSteps[currentStep];
+                    const activeCrawlers = transitionsToAnimate.map((t, idx) => {
+                        const fromNode = [...leaves, ...nests].find(n => n.id === t.from);
+                        // If it's the target node
+                        const toNode = t.to === "Target" ? level.target : nests.find(n => n.id === t.to);
+                        
+                        // Get current color of source node
+                        let colorOfCrawler = 'purple';
+                        if (fromNode) {
+                            colorOfCrawler = fromNode.color || fromNode.currentColor;
+                        }
+
+                        return {
+                            id: `crawler-${idx}-${currentStep}`,
+                            fromX: fromNode.x,
+                            fromY: fromNode.y,
+                            toX: toNode.x,
+                            toY: toNode.y,
+                            currentX: fromNode.x,
+                            currentY: fromNode.y,
+                            color: colorOfCrawler
+                        };
+                    });
+
+                    setCrawlers(activeCrawlers);
+
+                    // Crawl Animation Transition trigger
+                    setTimeout(() => {
+                        setCrawlers(prev => prev.map(c => ({ ...c, currentX: c.toX, currentY: c.toY })));
+                    }, 50);
+
+                    // Wait for crawl animation to finish
+                    setTimeout(() => {
+                        // Update Destination nest colors
+                        const stepEval = stepsResults[currentStep];
+                        setNests(prevNests => prevNests.map(n => {
+                            if (stepEval[n.id] !== undefined) {
+                                return { ...n, currentColor: stepEval[n.id] };
+                            }
+                            return n;
+                        }));
+
+                        // Reset crawlers for this step
+                        setCrawlers([]);
+                        
+                        // Progress to next level-height step
+                        currentStep++;
+                        setActiveStep(currentStep);
+                        
+                        // Recurse next step
+                        if (currentStep < level.animationSteps.length) {
+                            playSound('slide');
+                        }
+                        setTimeout(executeStep, 400);
+
+                    }, 950);
+                };
+
+                executeStep();
+            };
+
+            // Get Absolute Coordinates for Responsive Draw
+            const getCoords = (nodeId) => {
+                if (nodeId === "Target") return { x: level.target.x, y: level.target.y };
+                const found = [...leaves, ...nests].find(n => n.id === nodeId);
+                return found ? { x: found.x, y: found.y } : { x: 50, y: 50 };
+            };
+
+            return (
+                <div class="flex-grow flex flex-col">
+                    
+                    {/* Header Bar */}
+                    <header class="bg-white border-b-2 border-sasetalPurple/10 shadow-md py-4 px-6 sticky top-0 z-30 flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            {/* Embedded Custom High-Fidelity Sasetal SVG Logo */}
+                            <div class="w-16 h-16 cursor-pointer transform hover:scale-105 transition-all duration-300" onClick={() => setShowIntro(true)}>
+                                <svg viewBox="0 0 200 240" class="w-full h-full drop-shadow-md">
+                                    <defs>
+                                        <linearGradient id="logoPurple" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#9C27B0"/>
+                                            <stop offset="100%" stop-color="#4A148C"/>
+                                        </linearGradient>
+                                        <linearGradient id="logoGold" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#FFD700"/>
+                                            <stop offset="100%" stop-color="#B8860B"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <g>
+                                        {/* Right purple half of circular "S" */}
+                                        <path d="M 100,20 A 60,60 0 0,1 160,80 A 60,60 0 0,1 100,140 C 130,140 145,110 130,90 C 115,70 85,90 70,70 C 55,50 70,20 100,20 Z" fill="url(#logoPurple)" />
+                                        {/* Left gold half of circular "S" */}
+                                        <path d="M 100,20 C 70,20 55,50 70,70 C 85,90 115,70 130,90 C 145,110 130,140 100,140 A 60,60 0 0,1 40,80 A 60,60 0 0,1 100,20 Z" fill="url(#logoGold)" />
+                                    </g>
+                                    <text x="100" y="190" font-family="'Cairo', sans-serif" font-size="36" font-weight="900" fill="#702D95" text-anchor="middle">Sasetal</text>
+                                    <text x="100" y="215" font-family="'Cairo', sans-serif" font-size="8.5" font-weight="bold" fill="#B8860B" letter-spacing="1.5" text-anchor="middle">THERE IS NO LIMIT TO KNOWLEDGE</text>
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 class="text-xl md:text-2xl font-black text-sasetalPurple">تحدي الحرابي الذكية</h1>
+                                <p class="text-xs text-sasetalGold-dark font-semibold">بوابة التفكير المنهجي والحوسبي بمعهد ساسيتال</p>
+                            </div>
+                        </div>
+
+                        {/* Level Info & Star Badges */}
+                        <div class="flex items-center gap-3">
+                            <div class="bg-sasetalPurple-muted text-sasetalPurple font-bold px-4 py-2 rounded-full flex items-center gap-2 border border-sasetalPurple/20">
+                                <span>صعوبة المستوى:</span>
+                                <div class="flex gap-0.5">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <i key={i} class={`fa-solid fa-star text-sm ${i < level.stars ? 'text-sasetalGold' : 'text-slate-300'}`}></i>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button onClick={() => setShowHelpModal(true)} class="bg-slate-100 hover:bg-slate-200 text-slate-700 w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow" title="طريقة اللعب">
+                                <i class="fa-solid fa-question text-lg"></i>
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* Intro Welcome Screen Overlay */}
+                    {showIntro && (
+                        <div class="fixed inset-0 bg-sasetalPurple-dark/95 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+                            <div class="bg-white rounded-3xl p-6 md:p-10 max-w-2xl w-full text-center border-4 border-sasetalGold float-animation shadow-2xl relative">
+                                
+                                {/* Top corner decorations */}
+                                <div class="absolute -top-6 -left-6 w-16 h-16 bg-sasetalGold rounded-full flex items-center justify-center text-white text-2xl shadow-lg">⭐</div>
+                                <div class="absolute -bottom-6 -right-6 w-16 h-16 bg-sasetalPurple rounded-full flex items-center justify-center text-white text-2xl shadow-lg">🦎</div>
+
+                                {/* Logo */}
+                                <div class="w-36 h-36 mx-auto mb-6">
+                                    <svg viewBox="0 0 200 240" class="w-full h-full drop-shadow-xl">
+                                        <path d="M 100,20 A 60,60 0 0,1 160,80 A 60,60 0 0,1 100,140 C 130,140 145,110 130,90 C 115,70 85,90 70,70 C 55,50 70,20 100,20 Z" fill="url(#logoPurple)" />
+                                        <path d="M 100,20 C 70,20 55,50 70,70 C 85,90 115,70 130,90 C 145,110 130,140 100,140 A 60,60 0 0,1 40,80 A 60,60 0 0,1 100,20 Z" fill="url(#logoGold)" />
+                                        <text x="100" y="190" font-family="'Cairo', sans-serif" font-size="34" font-weight="900" fill="#702D95" text-anchor="middle">Sasetal</text>
+                                        <text x="100" y="215" font-family="'Cairo', sans-serif" font-size="8.5" font-weight="bold" fill="#B8860B" letter-spacing="1.5" text-anchor="middle">THERE IS NO LIMIT TO KNOWLEDGE</text>
+                                    </svg>
+                                </div>
+
+                                <h2 class="text-3xl md:text-4xl font-extrabold text-sasetalPurple mb-3">مرحباً بكم في تحدي الحرابي الذكية!</h2>
+                                <h3 class="text-lg md:text-xl font-bold text-sasetalGold-dark mb-6">معهد ساسيتال التعليمي • المعلمة ناهد</h3>
+                                
+                                <p class="text-slate-600 mb-8 leading-relaxed text-base md:text-lg max-w-lg mx-auto">
+                                    تحدي تفاعلي ذكي مستوحى من مسابقة بيبراس العالمية لتنمية الفكر البرمجي والمنطقي للطلاب. ساعد الحرابي في العثور على المسار الصحيح للنزول للأعشاش وحقق الهدف الذهبي!
+                                </p>
+
+                                <button onClick={() => { playSound('click'); setShowIntro(false); }} class="bg-gradient-to-r from-sasetalPurple to-sasetalPurple-light text-white font-extrabold px-10 py-4 rounded-2xl shadow-lg shadow-sasetalPurple/30 hover:scale-105 hover:shadow-xl transition-all duration-300 text-lg">
+                                    انطلق إلى المغامرة واللعب 🎮
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Instruction Guide Modal */}
+                    {showHelpModal && (
+                        <div class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+                            <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full border-2 border-sasetalPurple relative">
+                                <button onClick={() => { playSound('click'); setShowHelpModal(false); }} class="absolute top-4 left-4 text-slate-400 hover:text-slate-600 text-2xl transition-colors">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </button>
+
+                                <h3 class="text-2xl font-extrabold text-sasetalPurple mb-4 text-center">💡 كيف تلعب هذه اللعبة؟</h3>
+                                
+                                <div class="space-y-4 text-slate-700 leading-relaxed text-right text-sm md:text-base">
+                                    <div class="flex gap-3 items-start">
+                                        <div class="bg-sasetalPurple/10 text-sasetalPurple font-black w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">١</div>
+                                        <p><strong>الهدف النهائي:</strong> هو جعل الحرباء في الأسفل تماماً تتلون باللون <strong>الذهبي 🟡</strong>.</p>
+                                    </div>
+                                    <div class="flex gap-3 items-start">
+                                        <div class="bg-sasetalPurple/10 text-sasetalPurple font-black w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">٢</div>
+                                        <p><strong>أوراق الشجر:</strong> اضغط عليها لتغيير ألوان الحرابي في الأعلى بين <strong>البنفسجي 🟣</strong> و <strong>الذهبي 🟡</strong>.</p>
+                                    </div>
+                                    <div class="flex gap-3 items-start">
+                                        <div class="bg-sasetalPurple/10 text-sasetalPurple font-black w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">٣</div>
+                                        <p><strong>قاعدة الأعشاش:</strong> عندما تنزل حرباءان لعش مشترك:
+                                            <br />- إذا كانتا من <span class="text-sasetalPurple font-bold">نفس اللون</span> (بنفسجي وبنفسجي، أو ذهبي وذهبي)، فإن الحرباء في العش تتلون بـ <span class="font-bold">هذا اللون المشترك</span>.
+                                            <br />- إذا كانتا من <span class="text-red-600 font-bold">لونين مختلفين</span>، فإن الحرباء في العش <span class="font-bold">تحافظ على لونها الأصلي</span> دون تغيير.
+                                        </p>
+                                    </div>
+                                    <div class="flex gap-3 items-start">
+                                        <div class="bg-sasetalPurple/10 text-sasetalPurple font-black w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">٤</div>
+                                        <p><strong>عدد التغييرات المحدودة:</strong> انتبه، لكل مستوى حد أقصى للتغيير على أوراق الشجر، لذا فكر جيداً وحلل المسار مسبقاً!</p>
+                                    </div>
+                                </div>
+
+                                <button onClick={() => { playSound('click'); setShowHelpModal(false); }} class="w-full mt-6 bg-sasetalPurple hover:bg-sasetalPurple-dark text-white font-bold py-3 rounded-xl transition-all duration-300">
+                                    فهمت القواعد، فلنبدأ! 👍
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Main Layout Screen */}
+                    <main class="flex-grow max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                        
+                        {/* Left Card: Task details and Controls */}
+                        <section class="lg:col-span-4 flex flex-col gap-5">
+                            
+                            {/* Level selector */}
+                            <div class="bg-white rounded-2xl p-4 shadow-md border border-slate-100">
+                                <span class="text-xs font-bold text-slate-400 block mb-2">اختر مستوى التحدي:</span>
+                                <div class="flex gap-2">
+                                    {LEVELS.map((lvl, index) => (
+                                        <button 
+                                            key={lvl.id}
+                                            disabled={isAnimating}
+                                            onClick={() => { playSound('click'); setLevelIdx(index); }}
+                                            class={`flex-1 py-3 px-2 rounded-xl text-center font-bold text-sm transition-all duration-300 ${
+                                                levelIdx === index 
+                                                    ? 'bg-sasetalPurple text-white shadow-md shadow-sasetalPurple/20 scale-[1.03]' 
+                                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-50'
+                                            }`}
+                                        >
+                                            مستوى {lvl.id}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Task details */}
+                            <div class="bg-white rounded-3xl shadow-lg border-2 border-sasetalPurple/10 overflow-hidden flex flex-col justify-between flex-grow">
+                                <div class="bg-gradient-to-r from-sasetalPurple to-sasetalPurple-light text-white p-5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="bg-white/20 w-8 h-8 rounded-lg flex items-center justify-center">
+                                            <i class="fa-solid fa-bullseye text-sasetalGold"></i>
+                                        </div>
+                                        <h3 class="text-lg font-black">المهمة المطلوبة</h3>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-6 flex-grow flex flex-col justify-between gap-6">
+                                    <div class="space-y-4">
+                                        <h4 class="text-base font-bold text-sasetalPurple-dark">{level.name}</h4>
+                                        <p class="text-sm md:text-base text-slate-600 leading-relaxed text-justify">
+                                            {level.description}
+                                        </p>
+
+                                        {/* Dynamic changes counter */}
+                                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 flex items-center justify-between">
+                                            <span class="text-sm font-bold text-slate-500">عدد التعديلات المستخدمة:</span>
+                                            <div class="flex items-center gap-1.5">
+                                                <span class={`text-lg font-extrabold ${changesCount > level.maxChanges ? 'text-red-500' : 'text-sasetalPurple'}`}>
+                                                    {changesCount}
+                                                </span>
+                                                <span class="text-xs text-slate-400">/</span>
+                                                <span class="text-sm font-bold text-slate-600">{level.maxChanges}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Visual reference of the matching rules */}
+                                        <div class="p-3 bg-sasetalGold/10 border border-sasetalGold/20 rounded-xl space-y-2">
+                                            <span class="text-xs font-black text-sasetalGold-dark block">📌 قواعد مطابقة الألوان بالأعشاش:</span>
+                                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                                <div class="flex items-center gap-1">
+                                                    <div class="w-3 h-3 rounded-full bg-sasetalPurple"></div>
+                                                    <div class="w-3 h-3 rounded-full bg-sasetalPurple"></div>
+                                                    <span class="font-bold text-slate-600">⬅️ يتغير العش</span>
+                                                </div>
+                                                <div class="flex items-center gap-1">
+                                                    <div class="w-3 h-3 rounded-full bg-sasetalGold"></div>
+                                                    <div class="w-3 h-3 rounded-full bg-sasetalGold"></div>
+                                                    <span class="font-bold text-slate-600">⬅️ يتغير العش</span>
+                                                </div>
+                                                <div class="flex items-center gap-1 col-span-2">
+                                                    <div class="w-3 h-3 rounded-full bg-sasetalPurple"></div>
+                                                    <div class="w-3 h-3 rounded-full bg-sasetalGold"></div>
+                                                    <span class="font-bold text-slate-600">⬅️ العش يحافظ على لونه الأصلي</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Control Buttons */}
+                                    <div class="flex flex-col gap-3">
+                                        <button 
+                                            disabled={isAnimating}
+                                            onClick={runSimulation}
+                                            class="w-full bg-gradient-to-r from-sasetalPurple to-sasetalPurple-light text-white font-black py-4 rounded-xl shadow-lg hover:shadow-xl hover:shadow-sasetalPurple/20 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 text-lg disabled:opacity-50 disabled:transform-none disabled:shadow-none"
+                                        >
+                                            <i class="fa-solid fa-play"></i>
+                                            <span>تشغيل المحاكاة 🚀</span>
+                                        </button>
+
+                                        <button 
+                                            onClick={() => { playSound('click'); resetLevel(); }}
+                                            class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm border border-slate-200"
+                                        >
+                                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                                            <span>إعادة تعيين المستوى ↩️</span>
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Right Area: Interactive Game Canvas */}
+                        <section class="lg:col-span-8 bg-white rounded-3xl p-4 md:p-6 shadow-lg border-2 border-sasetalPurple/10 flex flex-col justify-between relative overflow-hidden">
+                            
+                            {/* Watermark in background */}
+                            <div class="absolute inset-0 flex items-center justify-center opacity-[0.02] select-none pointer-events-none">
+                                <h1 class="text-9xl font-black">SASETAL</h1>
+                            </div>
+
+                            {/* Tree Frame (Interactive SVG Map) */}
+                            <div class="relative w-full h-[520px] md:h-[600px] border border-slate-100 rounded-2xl bg-gradient-to-b from-purple-50/20 via-white to-amber-50/20">
+                                
+                                <svg class="w-full h-full select-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                    
+                                    {/* Draw connection lines / branches */}
+                                    {level.connections.map((conn, idx) => {
+                                        const from = getCoords(conn.from);
+                                        const to = getCoords(conn.to);
+                                        const isConnectorActive = isAnimating && crawlers.some(c => c.fromX === from.x && c.toX === to.x);
+                                        return (
+                                            <g key={idx}>
+                                                {/* Core branch shadow */}
+                                                <line 
+                                                    x1={from.x} y1={from.y} 
+                                                    x2={to.x} y2={to.y} 
+                                                    stroke="#A1887F" 
+                                                    strokeWidth="1.8" 
+                                                    strokeLinecap="round" 
+                                                />
+                                                {/* Thick outer branch */}
+                                                <line 
+                                                    x1={from.x} y1={from.y} 
+                                                    x2={to.x} y2={to.y} 
+                                                    stroke="#D7CCC8" 
+                                                    strokeWidth="1.2" 
+                                                    strokeLinecap="round" 
+                                                />
+                                                {/* Animated Glow on active path */}
+                                                {isConnectorActive && (
+                                                    <line 
+                                                        x1={from.x} y1={from.y} 
+                                                        x2={to.x} y2={to.y} 
+                                                        stroke="#FFD700" 
+                                                        strokeWidth="2" 
+                                                        strokeLinecap="round" 
+                                                        class="opacity-70 pulse-gold-glow animate-pulse"
+                                                    />
+                                                )}
+                                            </g>
+                                        );
+                                    })}
+                                </svg>
+
+                                {/* Render Leaf Nodes with interactive chameleons */}
+                                {leaves.map((leaf) => {
+                                    const original = level.leaves.find(l => l.id === leaf.id);
+                                    const isChanged = leaf.color !== original.color;
+                                    return (
+                                        <div 
+                                            key={leaf.id}
+                                            style={{ left: `${leaf.x}%`, top: `${leaf.y}%`, transform: 'translate(-50%, -50%)' }}
+                                            class="absolute flex flex-col items-center justify-center z-20 group"
+                                        >
+                                            {/* Leaf structure backplate */}
+                                            <div class="absolute -bottom-1 -right-1 w-10 h-10 bg-emerald-500 rounded-tr-[50%] rounded-bl-[50%] transform rotate-45 border border-emerald-600/30 group-hover:scale-110 transition-transform duration-300"></div>
+                                            
+                                            {/* Clickable chameleon on leaf */}
+                                            <div 
+                                                onClick={() => handleLeafClick(leaf.id)}
+                                                class={`cursor-pointer transform hover:scale-115 active:scale-95 transition-all duration-300 relative rounded-full p-1.5 ${
+                                                    leaf.color === 'gold' ? 'pulse-gold-glow' : 'pulse-purple-glow'
+                                                }`}
+                                            >
+                                                <Chameleon color={leaf.color} sizeClass="w-10 h-10 md:w-12 md:h-12" />
+                                                
+                                                {/* Indicator if this specific leaf chameleon has been modified */}
+                                                {isChanged && (
+                                                    <span class="absolute -top-1 -right-1 bg-sasetalGold text-sasetalPurple text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm">
+                                                        ✓
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Render Nest Logic Gates */}
+                                {nests.map((nest) => {
+                                    return (
+                                        <div 
+                                            key={nest.id}
+                                            style={{ left: `${nest.x}%`, top: `${nest.y}%`, transform: 'translate(-50%, -50%)' }}
+                                            class="absolute w-16 h-16 md:w-20 md:h-20 bg-amber-50 rounded-full border-4 border-amber-800/40 shadow-inner flex flex-col items-center justify-between p-1 z-10"
+                                        >
+                                            {/* Nest inputs dots */}
+                                            <div class="flex justify-around w-full px-2 mt-0.5">
+                                                <div class="w-2.5 h-2.5 bg-slate-300 rounded-full border border-slate-400"></div>
+                                                <div class="w-2.5 h-2.5 bg-slate-300 rounded-full border border-slate-400"></div>
+                                            </div>
+
+                                            {/* Chameleon in the Nest (at the output slot) */}
+                                            <div class="relative flex items-center justify-center flex-grow -mt-1">
+                                                <Chameleon color={nest.currentColor} sizeClass="w-9 h-9 md:w-11 md:h-11" isFlipped={true} />
+                                                
+                                                {/* Mini badge of initial nested color so player can see keeping-state */}
+                                                <div 
+                                                    class={`absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full border border-slate-200 shadow-sm flex items-center justify-center ${
+                                                        nest.initialColor === 'gold' ? 'bg-sasetalGold' : 'bg-sasetalPurple'
+                                                    }`}
+                                                    title={`اللون الافتراضي للعش: ${nest.initialColor === 'gold' ? 'ذهبي' : 'بنفسجي'}`}
+                                                >
+                                                    <div class="w-2 h-2 rounded-full bg-white opacity-80"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Render Target Gate (Goal Node at Bottom) */}
+                                <div 
+                                    style={{ left: `${level.target.x}%`, top: `${level.target.y}%`, transform: 'translate(-50%, -50%)' }}
+                                    class="absolute flex items-center gap-2 z-10"
+                                >
+                                    {/* The target node representation */}
+                                    <div class="w-14 h-14 bg-slate-100 rounded-full border-4 border-dashed border-slate-400 flex items-center justify-center shadow-lg relative">
+                                        {targetColor === '#CBD5E1' ? (
+                                            <div class="text-xs font-bold text-slate-400">النتيجة</div>
+                                        ) : (
+                                            <Chameleon color={targetColor} sizeClass="w-10 h-10" />
+                                        )}
+                                    </div>
+                                    
+                                    {/* The Target Goal flag */}
+                                    <div class="bg-sasetalGold/90 text-sasetalPurple font-black px-2.5 py-1 rounded-lg border border-sasetalGold flex items-center gap-1.5 shadow-md">
+                                        <span class="text-xs">الهدف:</span>
+                                        <div class="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                                            <div class="w-3 h-3 rounded-full bg-sasetalGold"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Live Crawling Chameleons Animation Step */}
+                                {crawlers.map((craw) => {
+                                    return (
+                                        <div 
+                                            key={craw.id}
+                                            style={{ 
+                                                left: `${craw.currentX}%`, 
+                                                top: `${craw.currentY}%`, 
+                                                transform: 'translate(-50%, -50%)',
+                                            }}
+                                            class="absolute z-30 crawler-transition"
+                                        >
+                                            <Chameleon color={craw.color} sizeClass="w-10 h-10" isFlipped={true} />
+                                        </div>
+                                    );
+                                })}
+
+                            </div>
+
+                            {/* Info bar about teacher */}
+                            <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center text-xs md:text-sm">
+                                <span class="text-slate-500 font-medium">🎯 حقق الهدف من خلال الاستدلال المنطقي ومطابقة الخصائص.</span>
+                                <span class="text-sasetalPurple font-bold">بإشراف: المعلمة ناهد 🌸</span>
+                            </div>
+
+                        </section>
+                    </main>
+
+                    {/* Success Victory Modal */}
+                    {showSuccessModal && (
+                        <div class="fixed inset-0 bg-sasetalPurple-dark/90 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+                            <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center border-4 border-sasetalGold shadow-2xl relative float-animation">
+                                <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-sasetalGold rounded-full flex items-center justify-center text-4xl shadow-lg border-2 border-white">
+                                    🏆
+                                </div>
+
+                                <h3 class="text-3xl font-extrabold text-sasetalPurple mt-6 mb-2">تهانينا! فوز رائع 🎉</h3>
+                                <p class="text-sasetalGold-dark font-black mb-6">لقد نجحت في الحصول على الحرباء الذهبية بالأسفل!</p>
+                                
+                                <div class="bg-sasetalPurple-muted p-4 rounded-2xl border border-sasetalPurple/10 mb-6 text-sm text-slate-700 leading-relaxed">
+                                    "بني الذكي/ابنتي الذكية، لقد أظهرت مهارات ممتازة في التفكير المنطقي وهندسة الخوارزميات. فخورون بك في معهد ساسيتال!"
+                                    <br />
+                                    <span class="font-extrabold text-sasetalPurple mt-2 block">المعلمة: ناهد</span>
+                                </div>
+
+                                <div class="flex gap-3">
+                                    <button 
+                                        onClick={() => { playSound('click'); resetLevel(); }}
+                                        class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-xl transition-all duration-300 border border-slate-200"
+                                    >
+                                        إعادة اللعب 🔄
+                                    </button>
+
+                                    {levelIdx < LEVELS.length - 1 ? (
+                                        <button 
+                                            onClick={() => { playSound('click'); setLevelIdx(prev => prev + 1); }}
+                                            class="flex-1 bg-gradient-to-r from-sasetalPurple to-sasetalPurple-light text-white font-extrabold py-3.5 rounded-xl shadow-md hover:scale-105 transition-all duration-300"
+                                        >
+                                            المستوى التالي ➡️
+                                        </button>
+                                    ) : (
+                                        <button 
+                                            onClick={() => { playSound('click'); setShowIntro(true); }}
+                                            class="flex-1 bg-gradient-to-r from-sasetalGold to-amber-500 text-sasetalPurple-dark font-extrabold py-3.5 rounded-xl shadow-md hover:scale-105 transition-all duration-300"
+                                        >
+                                            عودة للرئيسية 🏠
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Failure Try-Again Modal */}
+                    {showFailureModal && (
+                        <div class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+                            <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center border-4 border-red-500 shadow-2xl relative">
+                                <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-red-100 rounded-full flex items-center justify-center text-4xl shadow-lg border-2 border-white">
+                                    🔍
+                                </div>
+
+                                <h3 class="text-2xl font-extrabold text-slate-800 mt-6 mb-2">محاولة جيدة، لكن لم ينجح الأمر!</h3>
+                                <p class="text-red-500 font-bold mb-6">الحرباء بالأسفل تلونت باللون البنفسجي بدلاً من الذهبي.</p>
+                                
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6 text-sm text-slate-600 leading-relaxed text-right">
+                                    <strong>💡 تلميحة المعلمة ناهد:</strong>
+                                    <br />فكر بشكل عكسي! ليكون العش الأخير باللون الذهبي، ما هما اللونان اللذان يجب أن يخرجا من العشين السابقين له؟ حلل قاعدة الأعشاش وستصل للحل بكل سهولة!
+                                </div>
+
+                                <div class="flex gap-3">
+                                    <button 
+                                        onClick={() => { playSound('click'); resetLevel(); }}
+                                        class="flex-1 bg-sasetalPurple text-white font-extrabold py-3.5 rounded-xl shadow-md hover:bg-sasetalPurple-dark transition-all duration-300"
+                                    >
+                                        إعادة المحاولة والتحليل 🔄
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Footer section matching the user's specific request */}
+                    <footer class="bg-gradient-to-r from-sasetalPurple-dark to-sasetalPurple py-4 px-6 border-t-4 border-sasetalGold text-white text-center shadow-inner mt-8">
+                        <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sasetalGold text-lg">✨</span>
+                                <span class="font-extrabold text-base tracking-wide">معهد ساسيتال التعليمي</span>
+                                <span class="text-slate-300 text-xs hidden md:inline">|</span>
+                                <span class="text-sasetalGold font-bold text-sm">بوابة التميز والإبداع المعرفي</span>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 text-sasetalGold-muted bg-white/5 py-1.5 px-4 rounded-full border border-white/10">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                                <span class="font-black text-sm text-sasetalGold">المعلمة المتميزة: ناهد</span>
+                            </div>
+                        </div>
+                    </footer>
+
+                </div>
+            );
+        };
+
+        // Render the application into root container
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
